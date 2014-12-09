@@ -9,15 +9,11 @@ import (
 )
 
 type BasicAuthenticator struct {
-	Validator Validator
-	Realm     string
+	Validate func(username, password string) bool
+	Realm    string
 }
 
-type Validator interface {
-	Validate(username, password string) bool
-}
-
-func NewAuthenticator(validator Validator, realm string) *BasicAuthenticator {
+func NewAuthenticator(validator func(username, password string) bool, realm string) *BasicAuthenticator {
 	return &BasicAuthenticator{validator, realm}
 }
 
@@ -62,5 +58,5 @@ func (a *BasicAuthenticator) auth(req *http.Request) bool {
 		return false
 	}
 
-	return a.Validator.Validate(lp[0], lp[1])
+	return a.Validate(lp[0], lp[1])
 }
