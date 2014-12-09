@@ -89,6 +89,72 @@ func TestFalsyAuthorizationHeader(t *testing.T) {
 	assert.Equal(t, 401, res.StatusCode)
 }
 
+func TestFooBarLogin(t *testing.T) {
+
+	ts := createServer(fooBarValidator)
+	defer ts.Close()
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", ts.URL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.SetBasicAuth("foo", "bar")
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert.Equal(t, 204, res.StatusCode)
+}
+
+func TestFooBarWrongPassword(t *testing.T) {
+
+	ts := createServer(fooBarValidator)
+	defer ts.Close()
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", ts.URL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.SetBasicAuth("foo", "bar2")
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert.Equal(t, 401, res.StatusCode)
+}
+
+func TestFooBarWrongUsername(t *testing.T) {
+
+	ts := createServer(fooBarValidator)
+	defer ts.Close()
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", ts.URL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.SetBasicAuth("foo2", "bar")
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	assert.Equal(t, 401, res.StatusCode)
+}
+
 func createServer(validator func(username, password string) bool) *httptest.Server {
 	auth := NewAuthenticator(validator, "testServer")
 
@@ -105,4 +171,8 @@ func trulyValidator(username, password string) bool {
 
 func falsyValidator(username, password string) bool {
 	return false
+}
+
+func fooBarValidator(username, password string) bool {
+	return username == "foo" && password == "bar"
 }
