@@ -100,9 +100,9 @@ func createServer(validator func(username, password string) bool) *httptest.Serv
 }
 
 func trulyValidator(username, password string) bool {
-  return true
+	return true
 }
 
 func falsyValidator(username, password string) bool {
-  return false
+	return false
 }
